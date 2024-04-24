@@ -1,0 +1,6 @@
+openai==0.24.0
+pinecone-client==0.0.0
+requests
+flask
+pytest
+jupyter
