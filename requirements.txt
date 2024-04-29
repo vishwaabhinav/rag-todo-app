@@ -1,6 +1,10 @@
-openai==0.24.0
-pinecone-client==0.0.0
+openai
+pinecone-client
 requests
 flask
 pytest
 jupyter
+fastapi 
+uvicorn
+aiosqlite
+python-dotenv
