@@ -4,7 +4,7 @@ import os
 
 load_dotenv()
 index_name = os.getenv('PINECONE_INDEX_NAME')
-dimension = os.getenv('PINECONE_INDEX_DIMENSION')
+dimension = int(os.getenv('PINECONE_INDEX_DIMENSION'))
 pinecone_api_key = os.getenv('PINECONE_API_KEY')
 
 def setup_pinecone():
@@ -31,7 +31,7 @@ def setup_pinecone():
 
 def store_embeddings(index, embeddings, ids):
     """Store the given embeddings into the specified Pinecone index only if they don't already exist."""
-    vectors = [{"id": str(id_), "values": vec.embedding} for id_, vec in zip(ids, embeddings)]
+    vectors = [{"id": str(id_), "values": vec} for id_, vec in zip(ids, embeddings)]
     index.upsert(vectors)
 
 def search_embeddings(index, query_embedding, top_k=5):

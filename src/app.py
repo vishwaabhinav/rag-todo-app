@@ -4,7 +4,7 @@ from .data_manager import read_text_file, create_chunks
 from .embeddings import generate_embeddings
 from .pinecone_manager import setup_pinecone, search_embeddings, store_embeddings
 from .llm_manager import generate_conversational_output
-from .db_manager import initialize_db, store_chunk, get_chunk
+from .db_manager import initialize_db, store_data, get_data
 import hashlib
 import os
 
@@ -28,15 +28,21 @@ async def initialize():
 
 async def index_files():
     directory = 'data/raw/'
+    os.makedirs(directory, exist_ok=True)
     for filename in os.listdir(directory):
         if filename.endswith(".txt"):
             file_path = os.path.join(directory, filename)
             notes_content = read_text_file(file_path)
             chunks = create_chunks(notes_content, max_length=1024)
-            embeddings = generate_embeddings(chunks)
             ids = [generate_id(chunk) for chunk in chunks]
+            embeddings = []
             for id_, chunk in zip(ids, chunks):
-                await store_chunk(id_, chunk)
+                data = await get_data(id_)
+                if not data:
+                    embed = generate_embeddings(chunk)[0].embedding
+                    await store_data(id_, chunk, embed)
+                    data = {"embedding": embed}
+                embeddings.append(data["embedding"])
             store_embeddings(index, embeddings, ids)
 
 
@@ -51,7 +57,8 @@ async def handle_query(query: str):
     enriched_results = []
     for result in raw_results:
         id_ = result['id']
-        text = await get_chunk(id_)  # Fetch the text associated with the ID
+        data = await get_data(id_)
+        text = data["text"] # Fetch the text associated with the ID
         if text:
             enriched_results.append({
                 'id': id_,
