@@ -1,3 +1,4 @@
+- place your data under /data/raw/ as txt files
 - create an account on https://www.pinecone.io and get the api key
 - get the openai api key
 - clone .env.example and create a .env
